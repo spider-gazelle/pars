@@ -123,7 +123,7 @@ module Pars3k
 		end
 	end
 
-	class Parse
+	module Parse
 		# ```cr
 		# p = Parse.constant "abc"
 		# puts p.parse "abc" #=> abc
