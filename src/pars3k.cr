@@ -547,7 +547,11 @@ module Pars3k
 				if result.errored
 					ParseResult(B).error result.definite_error
 				else
-					ParseResult(B).new new_block.call(result.definite_value), result.context
+					begin
+						ParseResult(B).new new_block.call(result.definite_value), result.context
+					rescue e
+						ParseResult(B).error e.message || e.to_s, result.context
+					end
 				end
 			end
 		end
