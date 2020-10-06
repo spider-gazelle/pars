@@ -3,7 +3,7 @@ require "./parse_context"
 
 module Pars3k
   class Parser(T)
-    private getter block
+    getter block
 
     def initialize(&block : ParseContext -> ParseResult(T))
       @block = block
