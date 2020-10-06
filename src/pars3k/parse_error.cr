@@ -11,7 +11,7 @@ module Pars3k
       "(#{@context.parsing}:#{@context.position}) #{@message}"
     end
 
-    def to_s(io)
+    def to_s(io : IO)
       io << to_s
     end
   end
