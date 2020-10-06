@@ -123,7 +123,7 @@ describe Pars3k::Parse do
     describe ".delimited_list" do
       space = Parse.many_of Parse.char ' '
       comma = space >> Parse.char(',') >> space
-      word  = Parse.join Parse.one_or_more_of Parse.one_char_of "abcdefghijklmnopqrstuvwxyz01234567890"
+      word = Parse.join Parse.one_or_more_of Parse.one_char_of "abcdefghijklmnopqrstuvwxyz01234567890"
       p = Parse.delimited_list word, comma
       it "builds an array from the wrapped element and delimiter parsers" do
         p.parse("").should be_a ParseError
