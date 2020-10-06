@@ -54,9 +54,11 @@ describe Pars3k::Parse do
   end
 
   describe "combinators" do
+    a = Parse.char 'a'
+
     describe ".many_of" do
-      p = Parse.many_of Parse.char 'a'
-      it "continues to parse as long as the wrapped parser succeeds" do
+      p = Parse.many_of a
+      it "matches the wrapped parser zero or more times" do
         p.parse("abc").should eq ['a']
         p.parse("aabbcc").should eq ['a', 'a']
         p.parse("aaaaaah").should eq ['a', 'a', 'a', 'a', 'a', 'a']
@@ -66,7 +68,7 @@ describe Pars3k::Parse do
 
     describe ".one_or_more_of" do
       p = Parse.one_or_more_of Parse.one_char_of "act"
-      it "matches the wrapped parser one or more time" do
+      it "matches the wrapped parser at least once" do
         p.parse("cat").should eq ['c', 'a', 't']
         p.parse("act").should eq ['a', 'c', 't']
         p.parse("t").should eq ['t']
@@ -75,23 +77,60 @@ describe Pars3k::Parse do
     end
 
     describe ".some_of" do
-
+      p = Parse.some_of a, 2..4
+      it "matches the wrapped parser within the range bounds" do
+        p.parse("").should be_a ParseError
+        p.parse("a").should be_a ParseError
+        p.parse("aa").should eq ['a', 'a']
+        p.parse("aaa").should eq ['a', 'a', 'a']
+        p.parse("aaaa").should eq ['a', 'a', 'a', 'a']
+        p.parse("aaaaa").should eq ['a', 'a', 'a', 'a']
+      end
     end
 
     describe ".one_of" do
-
+      p = Parse.one_of a
+      it "matches zero or one times" do
+        p.parse("").should eq [] of Char
+        p.parse("a").should eq ['a']
+        p.parse("aa").should eq ['a']
+      end
     end
 
     describe ".one_of?" do
-
+      p = Parse.one_of? a
+      it "matches once, or returns nil" do
+        p.parse("").should be_nil
+        p.parse("a").should eq 'a'
+        p.parse("aa").should eq 'a'
+      end
     end
 
     describe ".if_not_nil?" do
-
+      b = Parse.char 'b'
+      p = Parse.one_of?(a).sequence do |a_result|
+        Parse.if_not_nil?(b, a_result).sequence do |b_result|
+          Parse.constant({a_result, b_result})
+        end
+      end
+      it "continues parsing when passed non-nil values" do
+        p.parse("ab").should eq({'a', 'b'})
+        p.parse("ac").should be_a ParseError
+        p.parse("b").should eq({nil, nil})
+      end
     end
 
     describe ".delimited_list" do
-
+      space = Parse.many_of Parse.char ' '
+      comma = space >> Parse.char(',') >> space
+      word  = Parse.join Parse.one_or_more_of Parse.one_char_of "abcdefghijklmnopqrstuvwxyz01234567890"
+      p = Parse.delimited_list word, comma
+      it "builds an array from the wrapped element and delimiter parsers" do
+        p.parse("").should be_a ParseError
+        p.parse("test").should eq ["test"]
+        p.parse("hello, world").should eq ["hello", "world"]
+        p.parse("par , s3k").should eq ["par", "s3k"]
+      end
     end
   end
 
