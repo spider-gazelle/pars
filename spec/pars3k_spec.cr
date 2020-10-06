@@ -136,37 +136,13 @@ describe Pars3k::Parse do
 
   describe "transforms" do
     describe ".join" do
-
-    end
-  end
-
-  describe "prebaked" do
-    describe ".alphabet_lower" do
-
-    end
-
-    describe ".alphabet_upper" do
-
-    end
-
-    describe ".alphabet" do
-
-    end
-
-    describe ".word" do
-
-    end
-
-    describe ".digit" do
-
-    end
-
-    describe ".int" do
-
-    end
-
-    describe ".float" do
-
+      alpha = Parse.one_char_of "abcdefghijklmnopqrstuvwxyz"
+      word = Parse.many_of alpha
+      word_joined = Parse.join word
+      it "combines characters from parser output into a string" do
+        word.parse("hello").should eq ['h', 'e', 'l', 'l', 'o']
+        word_joined.parse("hello").should eq "hello"
+      end
     end
   end
 end
