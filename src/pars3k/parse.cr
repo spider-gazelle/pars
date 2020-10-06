@@ -108,31 +108,25 @@ module Pars3k
     # Creates a `Parser(Array(T))` that works like `Parse.many_of`, but fails if
     # the number of successful parses is below the lower bound of the range `r`,
     # and stops parsing if the number of successful parses goes over the limit.
-    # In this case, `char_a` is parsed between 2 and 4 times.
     def some_of(parser : Parser(T), range : Range) : Parser(Array(T)) forall T
-      max = range.end - (range.excludes_end? ? 1 : 0)
       Parser(Array(T)).new do |ctx|
-        count = 0
         result = parser.block.call ctx
-        if result.errored && !range.includes? count
+        if result.errored && !range.includes? 0
           next ParseResult(Array(T)).error result.definite_error
         end
+
         results = [] of T
-        context = ctx
-        count += 1
+        max = range.end - (range.excludes_end? ? 1 : 0)
         while !result.errored
-          context = result.context
           results << result.definite_value
-          result = parser.block.call context
-          count += 1
-          if count > max
-            count = max
-            break
-          end
+          break if results.size >= max
+          result = parser.block.call result.context
         end
-        unless range.includes? count
-          next ParseResult(Array(T)).error "expected #{range} parses, got #{count} parses", context
+
+        unless range.includes? results.size
+          next ParseResult(Array(T)).error "expected #{range} parses, got #{results.size} parses", result.context
         end
+
         ParseResult(Array(T)).new results, result.context
       end
     end
