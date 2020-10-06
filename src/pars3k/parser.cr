@@ -4,11 +4,6 @@ require "./parse_context"
 module Pars3k
     # Parser(T) is a parser with return type T.
   class Parser(T)
-    # Parser.const(T) returns a parser that always succeeds with value of type T.
-    def self.const(value : T)
-      Parser(T).new { |ctx| ParseResult(T).new value, ctx }
-    end
-
     getter block
 
     def initialize(&block : ParseContext -> ParseResult(T))

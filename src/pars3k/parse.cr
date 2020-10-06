@@ -13,7 +13,9 @@ module Pars3k
     # `Parse.constant(value : T)` creates a `Parser(T)` that always succeeds with `value`.
     # This method is used to create final parse results using the `do_parse` macro.
     def self.constant(value : T) : Parser(T) forall T
-      Parser(T).const value
+      Parser(T).new do |ctx|
+        ParseResult(T).new value, ctx
+      end
     end
 
     # ```cr
