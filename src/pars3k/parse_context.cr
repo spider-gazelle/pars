@@ -15,11 +15,5 @@ module Pars3k
     def set_position(pos)
       @position = pos
     end
-
-    def debug(text : String)
-      puts parsing
-      puts "-" * position + "|"
-      puts "#{text.upcase}: #{position}"
-    end
   end
 end
