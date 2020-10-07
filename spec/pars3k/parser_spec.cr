@@ -8,7 +8,7 @@ describe Pars3k::Parser do
   b = Parse.char 'b'
 
   describe "#transform" do
-    it "applies the transoform to the parser output" do
+    it "applies the transform to the parser output" do
       p = a.transform &.to_s
       p.parse("a").should eq "a"
     end
@@ -62,6 +62,11 @@ describe Pars3k::Parser do
     end
     it "returns a ParseError if both fail" do
       p.parse("c").should be_a ParseError
+    end
+    it "allows chaining with a custom error message" do
+      result = (p | "nope").parse "c"
+      result.should be_a ParseError
+      result.as(ParseError).message.should eq "nope"
     end
   end
 end

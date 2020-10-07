@@ -127,5 +127,20 @@ module Pars3k
         end
       end
     end
+
+    # Creates a new `Parser(T)` that fails with *message* if `self` is
+    # unsuccessful.
+    #
+    # This can be used to provide a custom error message when chaining parsers.
+    def |(message : String) : Parser(T)
+      Parser(T).new do |context|
+        result = run context
+        if result.errored
+          ParseResult(T).error message, result.context
+        else
+          result
+        end
+      end
+    end
   end
 end
