@@ -29,10 +29,10 @@ module Pars3k
       Parser(B).new do |context|
         result = @block.call context
         if result.errored
-          ParseResult(B).error result.definite_error
+          ParseResult(B).error result.error!
         else
           begin
-            ParseResult(B).new new_block.call(result.definite_value), result.context
+            ParseResult(B).new new_block.call(result.value!), result.context
           rescue e
             ParseResult(B).error e.message || e.to_s, result.context
           end
@@ -48,9 +48,9 @@ module Pars3k
       Parser(B).new do |context|
         result = @block.call context
         if result.errored
-          ParseResult(B).error result.definite_error
+          ParseResult(B).error result.error!
         else
-          next_parser = new_block.call result.definite_value
+          next_parser = new_block.call result.value!
           next_parser.block.call result.context
         end
       end
@@ -71,9 +71,9 @@ module Pars3k
         else
           new_result = other.block.call result.context
           if new_result.errored
-            ParseResult(T).error new_result.definite_error
+            ParseResult(T).error new_result.error!
           else
-            result.set_context_position new_result.context.position
+            result.context.set_position new_result.context.position
             result
           end
         end
@@ -86,7 +86,7 @@ module Pars3k
       Parser(B).new do |context|
         result = @block.call context
         if result.errored
-          ParseResult(B).error result.definite_error
+          ParseResult(B).error result.error!
         else
           new_result = other.block.call result.context
           new_result
@@ -116,12 +116,12 @@ module Pars3k
         if result.errored
           new_result = other.block.call result.context
           if new_result.errored
-            ParseResult(T | B).error new_result.definite_error
+            ParseResult(T | B).error new_result.error!
           else
-            ParseResult(T | B).new new_result.definite_value, new_result.context
+            ParseResult(T | B).new new_result.value!, new_result.context
           end
         else
-          ParseResult(T | B).new result.definite_value, result.context
+          ParseResult(T | B).new result.value!, result.context
         end
       end
     end

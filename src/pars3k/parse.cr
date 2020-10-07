@@ -77,7 +77,7 @@ module Pars3k
         count = 1
         while !result.errored
           context = result.context
-          results << result.definite_value
+          results << result.value!
           result = parser.block.call context
           count += 1
         end
@@ -92,12 +92,12 @@ module Pars3k
       Parser(Array(T)).new do |context|
         result = parser.block.call context
         if result.errored
-          ParseResult(Array(T)).error result.definite_error
+          ParseResult(Array(T)).error result.error!
         else
-          chars = [result.definite_value]
+          chars = [result.value!]
           new_parser = many_of parser
           new_result = new_parser.block.call result.context
-          new_result.definite_value.each do |char|
+          new_result.value!.each do |char|
             chars << char
           end
           ParseResult(Array(T)).new chars, new_result.context
@@ -112,13 +112,13 @@ module Pars3k
       Parser(Array(T)).new do |ctx|
         result = parser.block.call ctx
         if result.errored && !range.includes? 0
-          next ParseResult(Array(T)).error result.definite_error
+          next ParseResult(Array(T)).error result.error!
         end
 
         results = [] of T
         max = range.end - (range.excludes_end? ? 1 : 0)
         while !result.errored
-          results << result.definite_value
+          results << result.value!
           break if results.size >= max
           result = parser.block.call result.context
         end
@@ -150,7 +150,7 @@ module Pars3k
         if result.errored
           ParseResult(T?).new(nil, result.context)
         else
-          ParseResult(T?).new(result.definite_value.as T, result.context)
+          ParseResult(T?).new(result.value!, result.context)
         end
       end
     end
@@ -165,9 +165,9 @@ module Pars3k
         Parser(T?).new do |context|
           result = parser.block.call context
           if result.errored
-            ParseResult(T?).error result.definite_error
+            ParseResult(T?).error result.error!
           else
-            ParseResult(T?).new result.definite_value.as T, result.context
+            ParseResult(T?).new result.value!, result.context
           end
         end
       end
@@ -179,9 +179,9 @@ module Pars3k
       Parser(Array(A)).new do |ctx|
         result = parser.block.call ctx
         if result.errored
-          next ParseResult(Array(A)).error result.definite_error
+          next ParseResult(Array(A)).error result.error!
         end
-        results = [result.definite_value] of A
+        results = [result.value!] of A
         context = ctx
         count = 1
         delimiter_result = delimiter.block.call result.context
@@ -191,7 +191,7 @@ module Pars3k
             break
           end
           context = result.context
-          results << result.definite_value
+          results << result.value!
           delimiter_result = delimiter.block.call context
         end
         ParseResult(Array(A)).new results, delimiter_result.context
