@@ -75,7 +75,7 @@ module Pars3k
           if new_result.errored
             ParseResult(T).error new_result.error!
           else
-            result.context.set_position new_result.context.position
+            result.context.pos = new_result.context.pos
             result
           end
         end

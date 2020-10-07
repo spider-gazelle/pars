@@ -16,12 +16,12 @@ module Pars3k
     # expects `c`.
     def char(char : Char)
       Parser(Char).new do |context|
-        if context.position >= context.parsing.size
+        if context.exhausted?
           ParseResult(Char).error "expected '#{char}', input ended", context
-        elsif context.parsing[context.position] == char
+        elsif context.peek == char
           ParseResult(Char).new char, context.next
         else
-          ParseResult(Char).error "expected '#{char}', got '#{context.parsing[context.position]}'", context
+          ParseResult(Char).error "expected '#{char}', got '#{context.peek}'", context
         end
       end
     end
@@ -57,12 +57,12 @@ module Pars3k
     # input. If the current character is present in `s`, then the parse fails.
     def no_char_of(string : String) : Parser(Char)
       Parser(Char).new do |context|
-        if context.position >= context.parsing.size
+        if context.exhausted?
           ParseResult(Char).error "expected none of '#{string}', input ended", context
-        elsif string.includes? context.parsing[context.position]
-          ParseResult(Char).error "expected none of '#{string}', got #{context.parsing[context.position]}", context
+        elsif string.includes? context.peek
+          ParseResult(Char).error "expected none of '#{string}', got #{context.peek}", context
         else
-          ParseResult(Char).new context.parsing[context.position], context.next
+          ParseResult(Char).new context.peek, context.next
         end
       end
     end
