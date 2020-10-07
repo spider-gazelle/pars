@@ -116,7 +116,7 @@ module Pars3k
       Parser(T | B).new do |context|
         result = run context
         if result.errored
-          new_result = other.run result.context
+          new_result = other.run context
           if new_result.errored
             ParseResult(T | B).error new_result.error!
           else
