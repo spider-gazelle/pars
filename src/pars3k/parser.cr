@@ -3,8 +3,6 @@ require "./parse_context"
 
 module Pars3k
   class Parser(T)
-    getter block
-
     def initialize(&block : ParseContext -> ParseResult(T))
       @block = block
     end
@@ -13,8 +11,12 @@ module Pars3k
     # block at definition.
     def parse(input : String) : (T | ParseError)
       context = ParseContext.new input
-      result = @block.call context
-      result.value
+      run(context).value
+    end
+
+    # Runs `self` for a given *context*.
+    def run(context : ParseContext) : ParseResult(T)
+      @block.call context
     end
 
     # Transforms the result of the parser such that, when the parser runs, the
@@ -25,14 +27,14 @@ module Pars3k
     # `char_parser.transform &.to_s`.
     #
     # It is similar to a map method on arrays from other languages.
-    def transform(&new_block : T -> B) : Parser(B) forall B
+    def transform(&block : T -> B) : Parser(B) forall B
       Parser(B).new do |context|
-        result = @block.call context
+        result = run context
         if result.errored
           ParseResult(B).error result.error!
         else
           begin
-            ParseResult(B).new new_block.call(result.value!), result.context
+            ParseResult(B).new block.call(result.value!), result.context
           rescue e
             ParseResult(B).error e.message || e.to_s, result.context
           end
@@ -44,14 +46,14 @@ module Pars3k
     #
     # Expects a block that receives the result of the current parser and returns
     # a new parser of any type.
-    def sequence(&new_block : T -> Parser(B)) : Parser(B) forall B
+    def sequence(&block : T -> Parser(B)) : Parser(B) forall B
       Parser(B).new do |context|
-        result = @block.call context
+        result = run context
         if result.errored
           ParseResult(B).error result.error!
         else
-          next_parser = new_block.call result.value!
-          next_parser.block.call result.context
+          next_parser = block.call result.value!
+          next_parser.run result.context
         end
       end
     end
@@ -65,11 +67,11 @@ module Pars3k
     # parser's result, but ensures the two succeed.
     def <<(other : Parser(B)) : Parser(T) forall B
       Parser(T).new do |context|
-        result = @block.call context
+        result = run context
         if result.errored
           result
         else
-          new_result = other.block.call result.context
+          new_result = other.run result.context
           if new_result.errored
             ParseResult(T).error new_result.error!
           else
@@ -84,11 +86,11 @@ module Pars3k
     # original parser's result, but ensures the two succeed.
     def >>(other : Parser(B)) : Parser(B) forall B
       Parser(B).new do |context|
-        result = @block.call context
+        result = run context
         if result.errored
           ParseResult(B).error result.error!
         else
-          new_result = other.block.call result.context
+          new_result = other.run result.context
           new_result
         end
       end
@@ -98,9 +100,9 @@ module Pars3k
     # succeeds. Checks A first, doesn't check B if A succeeds.
     def |(other : Parser(T)) : Parser(T)
       Parser(T).new do |context|
-        result = @block.call context
+        result = run context
         if result.errored
-          other.block.call context
+          other.run context
         else
           result
         end
@@ -112,9 +114,9 @@ module Pars3k
     # differences, gives union type.
     def |(other : Parser(B)) : Parser(T | B) forall B
       Parser(T | B).new do |context|
-        result = @block.call context
+        result = run context
         if result.errored
-          new_result = other.block.call result.context
+          new_result = other.run result.context
           if new_result.errored
             ParseResult(T | B).error new_result.error!
           else

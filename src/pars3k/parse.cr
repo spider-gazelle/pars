@@ -71,14 +71,14 @@ module Pars3k
     # it fails. It succeeds with an array of the successive values.
     def many_of(parser : Parser(T)) : Parser(Array(T)) forall T
       Parser(Array(T)).new do |ctx|
-        result = parser.block.call ctx
+        result = parser.run ctx
         results = [] of T
         context = ctx
         count = 1
         while !result.errored
           context = result.context
           results << result.value!
-          result = parser.block.call context
+          result = parser.run context
           count += 1
         end
         ParseResult(Array(T)).new results, context
@@ -90,13 +90,13 @@ module Pars3k
     # if it does not succeed.
     def one_or_more_of(parser : Parser(T)) : Parser(Array(T)) forall T
       Parser(Array(T)).new do |context|
-        result = parser.block.call context
+        result = parser.run context
         if result.errored
           ParseResult(Array(T)).error result.error!
         else
           chars = [result.value!]
           new_parser = many_of parser
-          new_result = new_parser.block.call result.context
+          new_result = new_parser.run result.context
           new_result.value!.each do |char|
             chars << char
           end
@@ -110,7 +110,7 @@ module Pars3k
     # and stops parsing if the number of successful parses goes over the limit.
     def some_of(parser : Parser(T), range : Range) : Parser(Array(T)) forall T
       Parser(Array(T)).new do |ctx|
-        result = parser.block.call ctx
+        result = parser.run ctx
         if result.errored && !range.includes? 0
           next ParseResult(Array(T)).error result.error!
         end
@@ -120,7 +120,7 @@ module Pars3k
         while !result.errored
           results << result.value!
           break if results.size >= max
-          result = parser.block.call result.context
+          result = parser.run result.context
         end
 
         unless range.includes? results.size
@@ -146,7 +146,7 @@ module Pars3k
     # check the return type with `result.nil?`.
     def one_of?(parser : Parser(T)) : Parser(T?) forall T
       Parser(T?).new do |context|
-        result = parser.block.call context
+        result = parser.run context
         if result.errored
           ParseResult(T?).new(nil, result.context)
         else
@@ -163,7 +163,7 @@ module Pars3k
         Parser(T?).new { |context| ParseResult(T?).new(nil, context) }
       else
         Parser(T?).new do |context|
-          result = parser.block.call context
+          result = parser.run context
           if result.errored
             ParseResult(T?).error result.error!
           else
@@ -177,22 +177,22 @@ module Pars3k
     # delimited by *delimter* until an error with either occurs.
     def delimited_list(parser : Parser(A), delimiter : Parser(B)) : Parser(Array(A)) forall A, B
       Parser(Array(A)).new do |ctx|
-        result = parser.block.call ctx
+        result = parser.run ctx
         if result.errored
           next ParseResult(Array(A)).error result.error!
         end
         results = [result.value!] of A
         context = ctx
         count = 1
-        delimiter_result = delimiter.block.call result.context
+        delimiter_result = delimiter.run result.context
         while !delimiter_result.errored
-          result = parser.block.call delimiter_result.context
+          result = parser.run delimiter_result.context
           if result.errored
             break
           end
           context = result.context
           results << result.value!
-          delimiter_result = delimiter.block.call context
+          delimiter_result = delimiter.run context
         end
         ParseResult(Array(A)).new results, delimiter_result.context
       end
