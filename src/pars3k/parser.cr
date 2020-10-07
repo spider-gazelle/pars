@@ -57,7 +57,7 @@ module Pars3k
     end
 
     # Sequences `self` with another parser of the same type.
-    def +(other : Parser(B)) : Parser(B) forall B
+    def +(other : Parser(T)) : Parser(T)
       sequence { |_| other }
     end
 
