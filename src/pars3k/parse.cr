@@ -2,28 +2,35 @@ require "./parser"
 require "./parse_result"
 
 module Pars3k
+  # Tools for creating commonly useful `Parser(T)` instances.
   module Parse
     extend self
 
-    # Creates a `Parser(T)` that always succeeds with `value`.
-    def constant(value : T) : Parser(T) forall T
+    # Creates a `Parser(T)` that always succeeds with *value*.
+    def const(value : T) : Parser(T) forall T
       Parser(T).new do |context|
         ParseResult(T).new value, context
       end
     end
 
-    # Creates a `Parser(Char)` that looks at the current parse position and
-    # expects `c`.
-    def char(char : Char)
-      Parser(Char).new do |context|
+    # Creates a `Parser(T)` that matches the specified *value*, or fails
+    # otherwise.
+    def match(value : T) : Parser(T) forall T
+      Parser(T).new do |context|
         if context.exhausted?
-          ParseResult(Char).error "expected '#{char}', input ended", context
-        elsif context.peek == char
-          ParseResult(Char).new char, context.next
+          ParseResult(T).error "expected '#{value}', input ended", context
+        elsif context.peek === value
+          ParseResult(T).new value, context.next
         else
-          ParseResult(Char).error "expected '#{char}', got '#{context.peek}'", context
+          ParseResult(T).error "expected '#{value}', got '#{context.peek}'", context
         end
       end
+    end
+
+    # Creates a `Parser(Char)` that looks at the current parse position and
+    # expects *char*.
+    def char(char : Char)
+      match char
     end
 
     # Creates a `Parser(String)` that looks at the current parse position
@@ -31,7 +38,7 @@ module Pars3k
     # consecutively present.
     def string(string : String) : Parser(String)
       if string.size == 0
-        constant ""
+        const ""
       elsif string.size == 1
         (char string[0]).transform &.to_s
       else
