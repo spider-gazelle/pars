@@ -107,10 +107,10 @@ module Pars3k
       end
     end
 
-    # Given `A / B`, creates a new parser that succeeds when A succeeds or B
+    # Given `A | B`, creates a new parser that succeeds when A succeeds or B
     # succeeds. Checks A first, doesn't check B if A succeeds. Ignores type
     # differences, gives union type.
-    def /(other : Parser(B)) : Parser(T | B) forall B
+    def |(other : Parser(B)) : Parser(T | B) forall B
       Parser(T | B).new do |context|
         result = @block.call context
         if result.errored
