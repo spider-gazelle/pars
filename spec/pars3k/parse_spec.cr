@@ -1,5 +1,5 @@
 require "spec"
-require "../src/pars3k"
+require "../../src/pars3k"
 
 include Pars3k
 
