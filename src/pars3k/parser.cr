@@ -56,9 +56,20 @@ module Pars3k
       end
     end
 
-    # Sequences `self` with another parser of the same type.
-    def +(other : Parser(T)) : Parser(T)
-      bind { |_| other }
+    # Sequences `self` with *other*, providing a new Parser that returns the
+    # results as a Tuple.
+    #
+    # If multiple parsers are chained, the results are flattened.
+    def +(other : Parser(B)) forall B
+      self.bind do |a|
+        other.bind do |b|
+          {% if T.name.starts_with? "Tuple(" %}
+            Parser(typeof(a + {b})).const Tuple.new *a, b
+          {% else %}
+            Parser({T, B}).const({a, b})
+          {% end %}
+        end
+      end
     end
 
     # Sequences the current parser with another parser, and disregards the other

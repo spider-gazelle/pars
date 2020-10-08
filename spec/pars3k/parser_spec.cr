@@ -6,6 +6,7 @@ include Pars3k
 describe Pars3k::Parser do
   a = Parse.char 'a'
   b = Parse.char 'b'
+  c = Parse.char 'c'
 
   describe "#map" do
     it "applies the transform to the parser output" do
@@ -21,10 +22,15 @@ describe Pars3k::Parser do
   end
 
   describe "#+" do
-    p = a + b
     it "sequences `self` with another parser" do
+      p = a + b
       p.parse("a").should be_a ParseError
-      p.parse("ab").should eq 'b'
+      p.parse("ab").should eq({'a', 'b'})
+      p.parse("abc").should eq({'a', 'b'})
+    end
+    it "flattens the results chain chaining" do
+      p = a + b + c
+      p.parse("abc").should eq({'a', 'b', 'c'})
     end
   end
 

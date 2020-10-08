@@ -42,11 +42,11 @@ module Pars3k
       elsif string.size == 1
         (char string[0]).map &.to_s
       else
-        parser = char string[0]
-        string[1...string.size].chars.each do |char|
-          parser += char char
+        parser = const ""
+        string.each_char do |c|
+          parser >>= char c
         end
-        parser.map { |_| string }
+        parser >> const string
       end
     end
 
