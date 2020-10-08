@@ -115,8 +115,8 @@ describe Pars3k::Parse do
 
     describe ".if_not_nil?" do
       b = Parse.char 'b'
-      p = Parse.one_of?(a).sequence do |a_result|
-        Parse.if_not_nil?(b, a_result).sequence do |b_result|
+      p = Parse.one_of?(a).bind do |a_result|
+        Parse.if_not_nil?(b, a_result).bind do |b_result|
           Parse.const({a_result, b_result})
         end
       end

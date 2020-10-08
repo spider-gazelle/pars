@@ -44,7 +44,7 @@ module Pars3k
     #
     # Expects a block that receives the result of the current parser and returns
     # a new parser of any type.
-    def sequence(&block : T -> Parser(B)) : Parser(B) forall B
+    def bind(&block : T -> Parser(B)) : Parser(B) forall B
       Parser(B).new do |context|
         result = run context
         if result.errored
@@ -58,7 +58,7 @@ module Pars3k
 
     # Sequences `self` with another parser of the same type.
     def +(other : Parser(T)) : Parser(T)
-      sequence { |_| other }
+      bind { |_| other }
     end
 
     # Sequences the current parser with another parser, and disregards the other
