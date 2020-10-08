@@ -9,7 +9,7 @@ module Pars3k
     getter input
 
     # The correct parse offset within *input*.
-    property pos
+    getter pos
 
     # Creates a new context at the next parse position.
     def next(offset = 1)
