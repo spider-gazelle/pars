@@ -40,13 +40,13 @@ module Pars3k
       if string.size == 0
         const ""
       elsif string.size == 1
-        (char string[0]).transform &.to_s
+        (char string[0]).map &.to_s
       else
         parser = char string[0]
         string[1...string.size].chars.each do |char|
           parser += char char
         end
-        parser.transform { |_| string }
+        parser.map { |_| string }
       end
     end
 
@@ -208,7 +208,7 @@ module Pars3k
     # Transforms *parser* by adding all of the characters of a result into a
     # string.
     def join(parser : Parser(Array(Char))) : Parser(String)
-      parser.transform &.reduce "" { |v, c| v + c }
+      parser.map &.reduce "" { |v, c| v + c }
     end
 
     # Parses a character of the lowercase alphabet.
@@ -228,7 +228,7 @@ module Pars3k
 
     # Parses a full word of at least one character.
     def word
-      (one_or_more_of alphabet).transform &.join
+      (one_or_more_of alphabet).map &.join
     end
 
     # Parses a digit as a character.
@@ -238,7 +238,7 @@ module Pars3k
 
     # Parses an integer as an actual `Int`.
     def int
-      (one_or_more_of digit).transform &.join
+      (one_or_more_of digit).map &.join
     end
 
     # Parses a float as an actual `Float`.

@@ -25,9 +25,7 @@ module Pars3k
     # For example, if you took a `Parser(Char)` and wanted to transform it to a
     # `Parser(String)` by `Char#to_s`, then you could use
     # `char_parser.transform &.to_s`.
-    #
-    # It is similar to a map method on arrays from other languages.
-    def transform(&block : T -> B) : Parser(B) forall B
+    def map(&block : T -> B) : Parser(B) forall B
       Parser(B).new do |context|
         result = run context
         if result.errored

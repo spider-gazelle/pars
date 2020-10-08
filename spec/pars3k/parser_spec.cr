@@ -7,13 +7,13 @@ describe Pars3k::Parser do
   a = Parse.char 'a'
   b = Parse.char 'b'
 
-  describe "#transform" do
+  describe "#map" do
     it "applies the transform to the parser output" do
-      p = a.transform &.to_s
+      p = a.map &.to_s
       p.parse("a").should eq "a"
     end
     it "captures exception in the transform as a ParseError" do
-      p = a.transform { |_| raise Exception.new "oh no" }
+      p = a.map { |_| raise Exception.new "oh no" }
       result = p.parse("a")
       result.should be_a ParseError
       result.message.should be "oh no"
