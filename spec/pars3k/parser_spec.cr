@@ -92,4 +92,19 @@ describe Pars3k::Parser do
       (b & a).parse("a").should be_a ParseError
     end
   end
+
+  describe "#^" do
+    it "succeeds if a succeeds" do
+      (a ^ b).parse("a").should eq 'a'
+    end
+    it "succeeds if b succeeds" do
+      (a ^ b).parse("b").should eq 'b'
+    end
+    it "fails if both fail" do
+      (a ^ b).parse("c").should be_a ParseError
+    end
+    it "fails if both succeed" do
+      (a ^ a).parse("a").should be_a ParseError
+    end
+  end
 end

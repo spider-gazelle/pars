@@ -163,5 +163,25 @@ module Pars3k
         end
       end
     end
+
+    # Given `A ^ B`, creates a parser that succeeds if A or B succeed
+    # exclusively for the same input.
+    #
+    # If both succeed, the parser will fail.
+    def ^(other : Parser(B)) : Parser(B) forall B
+      Parser(B).new do |context|
+        result = run context
+        other_result = other.run context
+        if result.errored && other_result.errored
+          ParseResult(B).error other_result.error!
+        elsif result.errored
+          other_result
+        elsif other_result.errored
+          result
+        else
+          ParseResult(B).error "expected #{self} ^ #{other}", context
+        end
+      end
+    end
   end
 end
