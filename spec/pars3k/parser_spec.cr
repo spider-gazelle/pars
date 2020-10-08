@@ -28,9 +28,15 @@ describe Pars3k::Parser do
       p.parse("ab").should eq({'a', 'b'})
       p.parse("abc").should eq({'a', 'b'})
     end
-    it "flattens the results chain chaining" do
+    it "flattens the results when chaining" do
       p = a + b + c
       p.parse("abc").should eq({'a', 'b', 'c'})
+    end
+    it "returns a ParseError if any fail" do
+      p = a + b + c
+      p.parse("zbc").should be_a ParseError
+      p.parse("azc").should be_a ParseError
+      p.parse("abz").should be_a ParseError
     end
   end
 
