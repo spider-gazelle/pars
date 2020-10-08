@@ -19,10 +19,10 @@ module Pars3k
       Parser(T).new do |context|
         if context.exhausted?
           ParseResult(T).error "expected '#{value}', input ended", context
-        elsif context.peek === value
+        elsif context.head === value
           ParseResult(T).new value, context.next
         else
-          ParseResult(T).error "expected '#{value}', got '#{context.peek}'", context
+          ParseResult(T).error "expected '#{value}', got '#{context.head}'", context
         end
       end
     end
@@ -66,10 +66,10 @@ module Pars3k
       Parser(Char).new do |context|
         if context.exhausted?
           ParseResult(Char).error "expected none of '#{string}', input ended", context
-        elsif string.includes? context.peek
-          ParseResult(Char).error "expected none of '#{string}', got #{context.peek}", context
+        elsif string.includes? context.head
+          ParseResult(Char).error "expected none of '#{string}', got #{context.head}", context
         else
-          ParseResult(Char).new context.peek, context.next
+          ParseResult(Char).new context.head, context.next
         end
       end
     end
