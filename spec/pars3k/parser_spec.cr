@@ -81,4 +81,15 @@ describe Pars3k::Parser do
       result.as(ParseError).message.should eq "nope"
     end
   end
+
+  describe "#&" do
+    it "succeeds when both succeed" do
+      p = a & Parse.alphabet
+      p.parse("a").should eq 'a'
+    end
+    it "returns a ParseError if either fail" do
+      (a & b).parse("a").should be_a ParseError
+      (b & a).parse("a").should be_a ParseError
+    end
+  end
 end
