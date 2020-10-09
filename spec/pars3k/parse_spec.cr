@@ -13,8 +13,8 @@ describe Pars3k::Parse do
     end
   end
 
-  describe ".match" do
-    p = Parse.match 'a'.ord
+  describe ".eq" do
+    p = Parse.eq 'a'.ord
     it "matches the value at the current parse position" do
       p.parse("abc").should eq 'a'.ord
       p.parse("bca").should be_a ParseError

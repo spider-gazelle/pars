@@ -2,36 +2,54 @@ require "./parser"
 require "./parse_result"
 
 module Pars3k
-  # Tools for creating commonly useful `Parser(T)` instances.
+  # Tools for creating commonly useful parser instances.
   module Parse
     extend self
 
-    # Creates a `Parser(T)` that always succeeds with *value*.
+    # Always succeeds with *value* and does not consume any input.
     def const(value : T) : Parser(T) forall T
-      Parser(T).new do |context|
-        ParseResult(T).new value, context
-      end
+      Parser(T).const value
     end
 
-    # Creates a `Parser(T)` that matches the specified *value*, or fails
-    # otherwise.
-    def match(value : T) : Parser(T) forall T
+    # Parser that succeeds with *value* if *block* evaluates to true when passed
+    # the value.
+    def cond(value : T, &block : T -> Bool) : Parser(T) forall T
       Parser(T).new do |context|
-        if context.exhausted?
-          ParseResult(T).error "expected '#{value}', input ended", context
-        elsif context.head === value
-          ParseResult(T).new value, context.next
+        if block.call value
+          ParseResult(T).new value, context
         else
-          ParseResult(T).error "expected '#{value}', got '#{context.head}'", context
+          ParseResult(T).error "unsatisfied predicate, got '#{value}'", context
         end
       end
     end
 
-    # Creates a `Parser(Char)` that looks at the current parse position and
-    # expects *char*.
-    def char(char : Char)
-      match char
+    # Parser that returns the `Char` at the context head if *block return true.
+    def char_if(&block : Char -> Bool) : Parser(Char)
+      Parser.char.bind do |value|
+        cond value, &block
+      end
     end
+
+    # Parser that return the byte at the context head if *block* returns true.
+    def byte_if(&block : UInt8 -> Bool) : Parser(UInt8)
+      Parser.byte.bind do |value|
+        cond value, &block
+      end
+    end
+
+    # Parser that tests equivalence to *value* at the parse head, or fails.
+    def eq(value : T) : Parser(T) forall T
+      Parser.head.bind do |head|
+        cond value, &.===(head)
+      end
+    end
+
+    # Parser that matches for a specific *char* at the parse head.
+    def char(char : Char)
+      char_if &.==(char)
+    end
+
+    # Parser that matches for a specific *byte* at the parse head.
 
     # Creates a `Parser(String)` that looks at the current parse position
     # expects the array of characters in the string `s` (`s.chars`) to be
@@ -66,10 +84,10 @@ module Pars3k
       Parser(Char).new do |context|
         if context.exhausted?
           ParseResult(Char).error "expected none of '#{string}', input ended", context
-        elsif string.includes? context.head
-          ParseResult(Char).error "expected none of '#{string}', got #{context.head}", context
+        elsif string.includes? context.char
+          ParseResult(Char).error "expected none of '#{string}', got #{context.char}", context
         else
-          ParseResult(Char).new context.head, context.next
+          ParseResult(Char).new context.char, context.next
         end
       end
     end
@@ -247,7 +265,7 @@ module Pars3k
         whole <= (join one_or_more_of digit),
         _ <= (one_of? char '.'),
         decimal <= (join many_of digit),
-        constant "#{whole}#{decimal.size == 0 ? ".0" : "." + decimal}".to_f,
+        const "#{whole}#{decimal.size == 0 ? ".0" : "." + decimal}".to_f,
       })
     end
   end

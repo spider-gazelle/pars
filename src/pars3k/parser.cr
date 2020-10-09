@@ -3,13 +3,41 @@ require "./parse_context"
 
 module Pars3k
   class Parser(T)
+    # Creates a `Parser` that always succeeds with *value*.
+    def self.const(value : T)
+      new do |context|
+        ParseResult(T).new value, context
+      end
+    end
+
+    # Creates a `Parser` that always fails with *message*.
+    def self.fail(message : String)
+      new do |context|
+        ParseResult(T).error message, context
+      end
+    end
+
+    {% for item in [:head, :char, :byte] %}
+      # Creates a `Parser` that consumes the parse head, or fails if the end of
+      # input has been reached.
+      def self.{{item.id}}
+        new do |context|
+          if context.exhausted?
+            ParseResult(typeof(context.{{item.id}})).error "input ended", context
+          else
+            ParseResult(typeof(context.{{item.id}})).new context.{{item.id}}, context.next
+          end
+        end
+      end
+    {% end %}
+
     def initialize(&block : ParseContext -> ParseResult(T))
       @block = block
     end
 
     # Parses the input string `input` given the parser's logic provided by its
     # block at definition.
-    def parse(input : String) : (T | ParseError)
+    def parse(input) : (T | ParseError)
       context = ParseContext.new input
       run(context).value
     end
