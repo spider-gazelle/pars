@@ -211,5 +211,49 @@ module Pars3k
         end
       end
     end
+
+    # Creates a new parser that repeats `self` exactly *count* times.
+    def *(count : Int) : Parser(Array(T))
+      case count
+      when .< 0
+        raise ArgumentError.new "cannot match less than zero times"
+      when .== 0
+        Parser.const [] of T
+      else
+        self * (count..count)
+      end
+    end
+
+    # Creates a new parser that repeats `self` continuously up to *range.end*
+    # times. If *range* is not bounded it will continue to repeat until failing.
+    def *(range : Range(Int, Int) | Range(Int, Nil)) : Parser(Array(T))
+      Parser(Array(T)).new do |context|
+        result = run context
+        if result.errored && !range.includes? 0
+          next ParseResult(Array(T)).error result.error!
+        end
+
+        results = [] of T
+        if (max = range.end)
+          max -= 1 if range.excludes_end?
+          while !result.errored
+            results << result.value!
+            break if results.size >= max
+            result = run result.context
+          end
+        else
+          while !result.errored
+            results << result.value!
+            result = run result.context
+          end
+        end
+
+        unless range.includes? results.size
+          next ParseResult(Array(T)).error "expected #{range} parses, got #{results.size} parses", result.context
+        end
+
+        ParseResult.new results, result.context
+      end
+    end
   end
 end
