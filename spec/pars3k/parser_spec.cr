@@ -3,10 +3,64 @@ require "../../src/pars3k"
 
 include Pars3k
 
-describe Pars3k::Parser do
+describe Parser do
   a = Parse.char 'a'
   b = Parse.char 'b'
   c = Parse.char 'c'
+
+  describe ".const" do
+    p = Parser.const 42
+    it "always returns the same value regardless of input" do
+      p.parse("a").should eq 42
+      p.parse("test").should eq 42
+      p.parse("").should eq 42
+      p.parse(Bytes[0xB, 0xE, 0xE, 0xF]).should eq 42
+      p.parse(Bytes.empty).should eq 42
+    end
+    it "does not consume any of the input" do
+      ctx = ParseContext.new "hello"
+      ctx.pos.should eq 0
+      res = p.run ctx
+      res.value.should eq 42
+      res.context.should eq ctx
+      res.context.pos.should eq 0
+    end
+  end
+
+  describe ".fail" do
+    p = Parser(Char).fail "nope"
+    it "fails for every input" do
+      p.parse("a").should be_a ParseError
+      p.parse("test").should be_a ParseError
+      p.parse("").should be_a ParseError
+      p.parse(Bytes[0xB, 0xE, 0xE, 0xF]).should be_a ParseError
+      p.parse(Bytes.empty).should be_a ParseError
+    end
+    it "does not consume any of the input" do
+      ctx = ParseContext.new "hello"
+      ctx.pos.should eq 0
+      res = p.run ctx
+      res.value.should be_a ParseError
+      res.context.should eq ctx
+      res.context.pos.should eq 0
+    end
+  end
+
+  describe ".head" do
+    p = Parser.head
+    it "returns the parse head" do
+      p.parse("a").should eq 'a'
+      p.parse("b").should eq 'b'
+    end
+    it "progresses the parse context" do
+      ctx = ParseContext.new "ab"
+      res = p.run ctx
+      res.context.pos.should eq 1
+    end
+    it "provides a parse error when the end of input is reached" do
+      p.parse("").should be_a ParseError
+    end
+  end
 
   describe "#map" do
     it "applies the transform to the parser output" do
