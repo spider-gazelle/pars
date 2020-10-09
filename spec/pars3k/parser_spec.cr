@@ -138,7 +138,7 @@ describe Parser do
 
   describe "#&" do
     it "succeeds when both succeed" do
-      p = a & Parse.alphabet
+      p = a & Parse.alpha
       p.parse("a").should eq 'a'
     end
     it "returns a ParseError if either fail" do
@@ -190,6 +190,7 @@ describe Parser do
     it "succeeds on a endless range if range.start is met" do
       (a * (0..)).parse("").should eq [] of Char
       (a * (1..)).parse("a").should eq [ 'a' ]
+      (a * (0..)).parse("aab").should eq [ 'a', 'a' ]
     end
   end
 end
