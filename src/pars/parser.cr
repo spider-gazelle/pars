@@ -212,11 +212,11 @@ module Pars
         if result.errored && other_result.errored
           ParseResult(T | B).error other_result.error!
         elsif result.errored
-          other_result
+          ParseResult(T | B).new other_result.value!, other_result.context
         elsif other_result.errored
-          result
+          ParseResult(T | B).new result.value!, result.context
         else
-          ParseResult(T | B).error "expected #{self} ^ #{other}", context
+          ParseResult(T | B).error "expected only one parser to succeed", context
         end
       end
     end

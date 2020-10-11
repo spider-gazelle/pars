@@ -178,6 +178,10 @@ describe Parser do
     it "fails if both succeed" do
       (a ^ a).parse("a").should be_a ParseError
     end
+    it "provides a union type as the result" do
+      str = Parse.string "foo"
+      (a ^ str).parse("a").should be_a Char | String
+    end
   end
 
   describe "#*(Int)" do
