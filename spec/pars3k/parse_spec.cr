@@ -13,6 +13,18 @@ describe Pars3k::Parse do
     end
   end
 
+  describe "do macro" do
+    it "supports sequencing multiple parsers" do
+      p = Parse.do({
+        alpha <= Parse.letter,
+        digit <= Parse.digit,
+        Parse.const({alpha, digit})
+      })
+      p.parse("a1").should eq({'a', '1'})
+      p.parse("42").should be_a ParseError
+    end
+  end
+
   describe ".cond" do
     it "success when the predicate is true" do
       p = Parse.cond 'a' { true }

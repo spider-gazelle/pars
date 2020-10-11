@@ -6,6 +6,39 @@ module Pars3k
   module Parse
     extend self
 
+    # Provides a notation for building complex parsers that combine the result
+    # of a number of component parsers.
+    macro do(body)
+      {% non_expression_types = {"Assign", "TypeNode", "Splat", "Union",
+                                 "UninitializedVar", "TypeDeclaration",
+                                 "Generic", "ClassDef", "Def",
+                                 "VisibilityModifier", "MultiAssign"} %}
+      {% if non_expression_types.includes? body.last.class_name %}
+        {{body.last.raise "expected last operation in monad to be an expression, got a '#{body.last.class_name}'"}}
+      {% end %}
+      ({{body[0].args[0]}}).bind do |{{body[0].receiver}}|
+      {% for i in 1...body.size - 1 %}
+        {% if body[i].class_name == "Assign" %}
+            {{body[i].target}} = {{body[i].value}}
+        {% else %}
+          {% if body[i].class_name == "Call" && body[i].name == "<=" %}
+            ({{body[i].args[0]}}).bind do |{{body[i].receiver}}|
+          {% elsif non_expressions_types.includes? body[i].class_name %}
+            {{body[i].raise "expected operation '<=' or '=', got '#{body[i].name}'"}}
+          {% else %}
+            {{body[i]}}
+          {% end %}
+        {% end %}
+      {% end %}
+        {{body[body.size - 1]}}
+      {% for i in 1...body.size - 1 %}
+        {% if body[i].class_name == "Call" && body[i].name == "<=" %}
+          end
+        {% end %}
+      {% end %}
+      end
+    end
+
     # Always succeeds with *value* and does not consume any input.
     def const(value : T) : Parser(T) forall T
       Parser(T).const value
