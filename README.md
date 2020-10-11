@@ -20,7 +20,7 @@ require "pars"
 include Pars
 ```
 
-While not required, including `Pars` is _highly recommended_ for easy of access.
+While not required, including `Pars` is _highly recommended_ for ease of access.
 
 ### Primitive parsers
 
