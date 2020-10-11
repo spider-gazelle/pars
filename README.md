@@ -20,9 +20,7 @@ require "pars"
 include Pars
 ```
 
-All parsers are of type `Parser(T)`, where `T` is the Parser output type.
-An example is a `Parser(Char)`, created with `Parse.char(Char)`.
-The method gives a `Parser(Char)` that, when run, looks for a specific character.
+While not required, including `Pars` is _highly recommended_ for easy of access.
 
 ### Primitive parsers
 
@@ -42,7 +40,7 @@ puts char_a.parse "bca" #=> expected 'a', got 'b'
 
 This example uses the same `char_a` parser, but parses string `"bca"` on it.
 Because it doesn't start with `'a'`, the parse fails and returns a `ParseError`.
-A `ParseError` is contains a message about the parse failure, available via `ParseError#message`.
+A `ParseError` contains a message about the parse failure, available via `ParseError#message`.
 As such, `Parser(T)#parse` returns a union of `(T | ParseError)`, as it can return either.
 
 ```crystal
@@ -377,5 +375,5 @@ Generate docs with `crystal docs`.
 
 `Pars` is a fork of [Pars3k](https://github.com/voximity/pars3k).
 It shares much of the same internals and structure but is _not_ API compatible.
-The public API has been build to use features, idioms and operators specific to crystal-lang.
-While it may look and feel different, a significant hat-tip needs to go to the original work by [Voximity](https://github.com/voximity).
+The public API uses features, idioms and operators specific to crystal-lang.
+While it may look and feel different, a significant hat-tip needs to go to the original work by [Voximity](https://github.com/voximity) and the authors of libraries which inspired it.
