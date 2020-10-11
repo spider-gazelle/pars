@@ -3,9 +3,9 @@
 `Pars` is a library for building monadic parser combinators in crystal-lang.
 It works with minimal object allocation to extract domain-specific representation from String or Bytes input.
 
-A combinator parser is a system that allows for the creation of small parsers which can then compose to represent more complex semantics.
-This process then repeats, allowing for increasingly complexity.
-Small parsers combine with logic (like OR, AND, etc.) and sequencing to create larger, more meaningful parsers.
+A combinator parser is a system that allows for the creation of small parsers which can then combine to represent more complex semantics.
+This process then repeats, allowing for increasing complexity.
+Small parsers combine with logic (OR, AND, XOR) and sequencing to create larger, more meaningful parsers.
 Ultimately providing a single parser that models a full domain grammar.
 
 This style of parser allows for creating interpreted programming languages, decoding markup, reading files of different formats, decoding communication protocols and other uses where there is a need to extract information from String or Bytes data based on defined syntax.
