@@ -156,7 +156,7 @@ describe Parser do
 
   describe "#&" do
     it "succeeds when both succeed" do
-      p = a & Parse.alpha
+      p = a & Parse.letter
       p.parse("a").should eq 'a'
     end
     it "returns a ParseError if either fail" do

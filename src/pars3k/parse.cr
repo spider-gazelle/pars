@@ -111,17 +111,17 @@ module Pars3k
     end
 
     # Parses a character of the lowercase alphabet.
-    def alpha_lower
+    def lowercase
       char_if &.lowercase?
     end
 
     # Parses a character of the uppercase alphabet.
-    def alpha_upper
+    def uppercase
       char_if &.uppercase?
     end
 
     # Parses a character in the alphabet regardless of case.
-    def alpha
+    def letter
       char_if &.letter?
     end
 
