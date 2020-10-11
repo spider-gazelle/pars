@@ -205,18 +205,18 @@ module Pars
     # exclusively for the same input.
     #
     # If both succeed, the parser will fail.
-    def ^(other : Parser(B)) : Parser(B) forall B
-      Parser(B).new do |context|
+    def ^(other : Parser(B)) : Parser(T | B) forall B
+      Parser(T | B).new do |context|
         result = run context
         other_result = other.run context
         if result.errored && other_result.errored
-          ParseResult(B).error other_result.error!
+          ParseResult(T | B).error other_result.error!
         elsif result.errored
           other_result
         elsif other_result.errored
           result
         else
-          ParseResult(B).error "expected #{self} ^ #{other}", context
+          ParseResult(T | B).error "expected #{self} ^ #{other}", context
         end
       end
     end
