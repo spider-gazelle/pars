@@ -13,9 +13,20 @@ describe Pars3k::Parse do
     end
   end
 
+  describe ".cond" do
+    it "success when the predicate is true" do
+      p = Parse.cond 'a' { true }
+      p.parse("").should eq 'a'
+    end
+    it "produces a ParseError when the prediciate is false" do
+      p = Parse.cond 'a' { false }
+      p.parse("").should be_a ParseError
+    end
+  end
+
   describe ".eq" do
     p = Parse.eq 'a'.ord
-    it "matches the value at the current parse position" do
+    it "checks equivalence at the parse position" do
       p.parse("abc").should eq 'a'.ord
       p.parse("bca").should be_a ParseError
       p.parse("cab").should be_a ParseError
@@ -28,6 +39,14 @@ describe Pars3k::Parse do
       p.parse("abc").should eq 'a'
       p.parse("bca").should be_a ParseError
       p.parse("cab").should be_a ParseError
+    end
+  end
+
+  describe ".byte" do
+    p = Parse.byte 0x0
+    it "matches for a byte value" do
+      p.parse(Bytes[0x0]).should eq 0x0
+      p.parse("foo").should be_a ParseError
     end
   end
 
