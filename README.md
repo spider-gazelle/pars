@@ -328,9 +328,9 @@ word = Parse.word
 optional_whitespace = Parse.whitespace * (0..)
 equals = optional_whitespace >> (Parse.char '=') << optional_whitespace
 
-key_value_pair = do_parse({
+key_value_pair = Parse.do({
   key <= word,
-  eq <= equals,
+  _ <= equals,
   value <= word,
   Parse.const({key, value})
 })
