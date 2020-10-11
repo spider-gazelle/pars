@@ -1,4 +1,4 @@
-module Pars3k
+module Pars
   # A struct containing information about a parsing context. Used to chain
   # Parsers together and retain input position.
   struct ParseContext

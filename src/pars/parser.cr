@@ -1,7 +1,7 @@
 require "./parse_result"
 require "./parse_context"
 
-module Pars3k
+module Pars
   class Parser(T)
     # Creates a `Parser` that always succeeds with *value*.
     def self.const(value : T)

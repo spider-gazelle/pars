@@ -1,4 +1,4 @@
-module Pars3k
+module Pars
   # A struct containing information about a parse error.
   struct ParseError
     getter context

@@ -1,7 +1,7 @@
 require "./parse_error"
 require "./parse_context"
 
-module Pars3k
+module Pars
   # ParseResult(T) is a result of a parsed Parser with return type T.
   struct ParseResult(T)
     # Creates an errored `ParseResult` that wraps *e*.

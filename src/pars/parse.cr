@@ -1,7 +1,7 @@
 require "./parser"
 require "./parse_result"
 
-module Pars3k
+module Pars
   # Tools for creating commonly useful `Parser` instances.
   module Parse
     extend self

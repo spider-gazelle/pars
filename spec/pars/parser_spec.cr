@@ -1,7 +1,7 @@
 require "spec"
-require "../../src/pars3k"
+require "../../src/pars"
 
-include Pars3k
+include Pars
 
 describe Parser do
   a = Parse.char 'a'

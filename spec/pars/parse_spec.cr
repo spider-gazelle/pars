@@ -1,9 +1,9 @@
 require "spec"
-require "../../src/pars3k"
+require "../../src/pars"
 
-include Pars3k
+include Pars
 
-describe Pars3k::Parse do
+describe Pars::Parse do
   describe ".const" do
     p = Parse.const 'a'
     it "returns a constant value for every input" do
