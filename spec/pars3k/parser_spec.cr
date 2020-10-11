@@ -99,11 +99,20 @@ describe Parser do
     it "returns the result of self if both parsers succeed" do
       p.parse("ab").should eq 'a'
     end
-    it "returns a ParseError is self errors" do
+    it "returns a ParseError if self errors" do
       p.parse("bb").should be_a ParseError
     end
-    it "returns a ParseError is other errors" do
-      p.parse("aa").should be_a ParseError
+    it "preserves the previous context when self fails" do
+      ctx = ParseContext.new "bb"
+      res = p.run ctx
+      res.value.should be_a ParseError
+      res.context.pos.should eq 0
+    end
+    it "preserves the parse context when other fails" do
+      ctx = ParseContext.new "aa"
+      res = p.run ctx
+      res.value.should be_a ParseError
+      res.context.pos.should eq 0
     end
   end
 
@@ -112,11 +121,20 @@ describe Parser do
     it "returns the result of other if both parsers succeed" do
       p.parse("ab").should eq 'b'
     end
-    it "returns a ParseError is self errors" do
-      p.parse("bb").should be_a ParseError
-    end
-    it "returns a ParseError is other errors" do
+    it "returns a parse error if other fails" do
       p.parse("aa").should be_a ParseError
+    end
+    it "preserves the previous context when self fails" do
+      ctx = ParseContext.new "bb"
+      res = p.run ctx
+      res.value.should be_a ParseError
+      res.context.pos.should eq 0
+    end
+    it "preserves the parse context when other fails" do
+      ctx = ParseContext.new "aa"
+      res = p.run ctx
+      res.value.should be_a ParseError
+      res.context.pos.should eq 0
     end
   end
 

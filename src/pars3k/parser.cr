@@ -78,8 +78,13 @@ module Pars3k
         if result.errored
           ParseResult(B).error result.error!
         else
-          next_parser = block.call result.value!
-          next_parser.run result.context
+          other = block.call result.value!
+          other_result = other.run result.context
+          if other_result.errored
+            ParseResult(B).error other_result.error!.message, context
+          else
+            other_result
+          end
         end
       end
     end
@@ -108,11 +113,11 @@ module Pars3k
         if result.errored
           result
         else
-          new_result = other.run result.context
-          if new_result.errored
-            ParseResult(T).error new_result.error!
+          other_result = other.run result.context
+          if other_result.errored
+            ParseResult(T).error other_result.error!.message, context
           else
-            ParseResult(T).new result.value!, new_result.context
+            ParseResult(T).new result.value!, other_result.context
           end
         end
       end
@@ -126,8 +131,12 @@ module Pars3k
         if result.errored
           ParseResult(B).error result.error!
         else
-          new_result = other.run result.context
-          new_result
+          other_result = other.run result.context
+          if other_result.errored
+            ParseResult(B).error other_result.error!.message, context
+          else
+            other_result
+          end
         end
       end
     end
@@ -235,6 +244,7 @@ module Pars3k
 
         results = [] of T
         if (max = range.end)
+          # Bounded range
           max -= 1 if range.excludes_end?
           while !result.errored
             results << result.value!
@@ -242,6 +252,7 @@ module Pars3k
             result = run result.context
           end
         else
+          # Unbounded - parse until error
           while !result.errored
             results << result.value!
             result = run result.context
