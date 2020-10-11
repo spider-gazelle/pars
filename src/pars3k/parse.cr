@@ -2,7 +2,7 @@ require "./parser"
 require "./parse_result"
 
 module Pars3k
-  # Tools for creating commonly useful parser instances.
+  # Tools for creating commonly useful `Parser` instances.
   module Parse
     extend self
 
@@ -40,7 +40,9 @@ module Pars3k
       end
     end
 
-    # Parser that tests equivalence to *value* at the parse head, or fails.
+    # Parser that tests equivalence to *value* at the parse head.
+    #
+    # If equivalent *value* itself is returned and the parse head progresses.
     def eq(value : T) : Parser(T) forall T
       Parser.head.bind do |head|
         cond value, &.===(head)
@@ -132,7 +134,7 @@ module Pars3k
       char_if &.number?
     end
 
-    # Parses an integer as a String
+    # Parses an integer as a String.
     def integer
       (digit * (1..)).map &.join
     end
