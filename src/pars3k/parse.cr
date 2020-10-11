@@ -11,6 +11,16 @@ module Pars3k
       Parser(T).const value
     end
 
+    # Parser that returns the parse head as a `Char`.
+    def char : Parser(Char)
+      Parser.char
+    end
+
+    # Parser that return the byte vaue at the parse head.
+    def byte : Parser(UInt8)
+      Parser.byte
+    end
+
     # Parser that succeeds with *value* if *block* evaluates to true when passed
     # the value.
     #
