@@ -71,6 +71,16 @@ describe Pars::Parse do
     end
   end
 
+  describe ".bytes" do
+    p = Parse.bytes Bytes[0xDE, 0xAD, 0xBE, 0xEF]
+    it "matches against byte values" do
+      p.parse(Bytes[0xDE, 0xAD, 0xBE, 0xEF]).should eq Bytes[0xDE, 0xAD, 0xBE, 0xEF]
+      p.parse(Bytes[0xDE, 0xAD]).should be_a ParseError
+      p.parse(Bytes[0x0]).should be_a ParseError
+      p.parse("foo").should be_a ParseError
+    end
+  end
+
   describe ".one_char_of" do
     p = Parse.one_char_of "abc"
     it "matches any character from the passed string" do

@@ -113,19 +113,34 @@ module Pars
       byte_if byte, &.==(byte)
     end
 
-    # Creates a `Parser(String)` that looks at the current parse position
+    # Creates a `Parser(String)` that looks at the current parse position and
     # expects the array of characters in the string `s` (`s.chars`) to be
     # consecutively present.
     def string(string : String) : Parser(String)
       case string.size
       when 0
-        const ""
+        const string
       when 1
-        char(string[0]).map &.to_s
+        char(string[0]) >> const string
       else
         string.each_char.map(&->char(Char)).reduce do |a, b|
           a >> b
         end >> const string
+      end
+    end
+
+    # Creates a `Parser(Bytes)` that looks at the current parse position and
+    # expects a series of bytes to be consecutively present.
+    def bytes(bytes : Bytes) : Parser(Bytes)
+      case bytes.size
+      when 0
+        const bytes
+      when 1
+        byte(bytes[0]) >> const bytes
+      else
+        bytes.each.map(&->byte(UInt8)).reduce do |a, b|
+          a >> b
+        end >> const bytes
       end
     end
 
