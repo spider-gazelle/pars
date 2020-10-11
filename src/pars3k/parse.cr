@@ -101,12 +101,12 @@ module Pars3k
 
     # Parses a character of the lowercase alphabet.
     def alpha_lower
-      char_if &.ascii_lowercase?
+      char_if &.lowercase?
     end
 
     # Parses a character of the uppercase alphabet.
     def alpha_upper
-      char_if &.ascii_uppercase?
+      char_if &.uppercase?
     end
 
     # Parses a character in the alphabet regardless of case.
@@ -114,9 +114,13 @@ module Pars3k
       char_if &.letter?
     end
 
+    def alphanumeric
+      char_if &.alphanumeric?
+    end
+
     # Parses a full word of at least one character.
     def word
-      (alpha * (1..)).map &.join
+      (alphanumeric * (1..)).map &.join
     end
 
     def whitespace
