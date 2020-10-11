@@ -59,27 +59,38 @@ module Pars
     #
     # In most cases this should not be used externally and is instead a tool for
     # composing parsers.
-    def cond(value : T, &block : T -> Bool) : Parser(T) forall T
+    def cond(value : T, expected : T | String? = nil, &block : T -> Bool) : Parser(T) forall T
       Parser(T).new do |context|
         if block.call value
           ParseResult(T).new value, context
         else
-          ParseResult(T).error "unsatisfied predicate, got '#{value}'", context
+          message = case expected
+                    when T
+                      "expected '#{expected}', got '#{value}'"
+                    when String
+                      "expected #{expected}, got '#{value}'"
+                    else
+                      "unsatisfied predicate, got '#{value}'"
+                    end
+          ParseResult(T).error message, context
         end
       end
     end
 
     # Parser that return the context head if it satisfies *block*.
-    def char_if(&block : Char -> Bool) : Parser(Char)
+    #
+    # *expected* can be optionally specified for providing a human friendly
+    # ParseError on fail.
+    def char_if(expected = nil, &block : Char -> Bool) : Parser(Char)
       Parser.char.bind do |value|
-        cond value, &block
+        cond value, expected, &block
       end
     end
 
     # :ditto:
-    def byte_if(&block : UInt8 -> Bool) : Parser(UInt8)
+    def byte_if(expected = nil, &block : UInt8 -> Bool) : Parser(UInt8)
       Parser.byte.bind do |value|
-        cond value, &block
+        cond value, expected, &block
       end
     end
 
@@ -88,18 +99,18 @@ module Pars
     # If equivalent *value* itself is returned and the parse head progresses.
     def eq(value : T) : Parser(T) forall T
       Parser.head.bind do |head|
-        cond value, &.===(head)
+        cond value, value, &.===(head)
       end
     end
 
     # Parser that matches for a specific *char* at the parse head.
     def char(char : Char) : Parser(Char)
-      char_if &.==(char)
+      char_if char, &.==(char)
     end
 
     # Parser that matches for a specific *byte* at the parse head.
     def byte(byte : UInt8) : Parser(UInt8)
-      byte_if &.==(byte)
+      byte_if byte, &.==(byte)
     end
 
     # Creates a `Parser(String)` that looks at the current parse position
@@ -121,13 +132,13 @@ module Pars
     # Creates a `Parser(Char)` that looks at the current parse position and
     # expects the current character to be present in the string `s`.
     def one_char_of(string_or_list : String | Enumerable(Char)) : Parser(Char)
-      char_if &.in?(string_or_list)
+      char_if "a character from #{string_or_list}", &.in?(string_or_list)
     end
 
     # Functions identically to `Parse.one_char_of`, but reverses the expected
     # input. If the current character is present in `s`, then the parse fails.
     def no_char_of(string_or_list : String | Enumerable(Char)) : Parser(Char)
-      char_if &.in?(string_or_list).!
+      char_if "no character in #{string_or_list}", &.in?(string_or_list).!
     end
 
     # Creates a `Parser(Array(T))` that will continue to parse with *parser*
@@ -145,21 +156,21 @@ module Pars
 
     # Parses a character of the lowercase alphabet.
     def lowercase
-      char_if &.lowercase?
+      char_if "a lowercase character", &.lowercase?
     end
 
     # Parses a character of the uppercase alphabet.
     def uppercase
-      char_if &.uppercase?
+      char_if "an uppercase character", &.uppercase?
     end
 
     # Parses a character in the alphabet regardless of case.
     def letter
-      char_if &.letter?
+      char_if "a letter", &.letter?
     end
 
     def alphanumeric
-      char_if &.alphanumeric?
+      char_if "an alphanumeric character", &.alphanumeric?
     end
 
     # Parses a full word of at least one character.
@@ -168,12 +179,12 @@ module Pars
     end
 
     def whitespace
-      char_if &.whitespace?
+      char_if "a whitespace character", &.whitespace?
     end
 
     # Parses a digit as a character.
     def digit
-      char_if &.number?
+      char_if "a digit", &.number?
     end
 
     # Parses an integer as a String.
