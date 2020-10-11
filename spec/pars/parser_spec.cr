@@ -182,9 +182,9 @@ describe Parser do
 
   describe "#*(Int)" do
     it "repeats the parser the specified number of times" do
-      (a * 1).parse("aaa").should eq [ 'a' ]
-      (a * 2).parse("aaa").should eq [ 'a', 'a' ]
-      (a * 3).parse("aaa").should eq [ 'a', 'a', 'a' ]
+      (a * 1).parse("aaa").should eq ['a']
+      (a * 2).parse("aaa").should eq ['a', 'a']
+      (a * 3).parse("aaa").should eq ['a', 'a', 'a']
     end
     it "returns an empty array for 0" do
       (a * 0).parse("aaa").should eq [] of Char
@@ -197,18 +197,18 @@ describe Parser do
   describe "#*(Range)" do
     p = a * (1..2)
     it "stops matching after range.end" do
-      p.parse("aab").should eq [ 'a', 'a' ]
+      p.parse("aab").should eq ['a', 'a']
     end
     it "succeeds if the number of matches is within the range" do
-      p.parse("ab").should eq [ 'a' ]
+      p.parse("ab").should eq ['a']
     end
     it "failes if the range.start is not met" do
       p.parse("b").should be_a ParseError
     end
     it "succeeds on a endless range if range.start is met" do
       (a * (0..)).parse("").should eq [] of Char
-      (a * (1..)).parse("a").should eq [ 'a' ]
-      (a * (0..)).parse("aab").should eq [ 'a', 'a' ]
+      (a * (1..)).parse("a").should eq ['a']
+      (a * (0..)).parse("aab").should eq ['a', 'a']
     end
   end
 end

@@ -18,7 +18,7 @@ describe Pars::Parse do
       p = Parse.do({
         alpha <= Parse.letter,
         digit <= Parse.digit,
-        Parse.const({alpha, digit})
+        Parse.const({alpha, digit}),
       })
       p.parse("a1").should eq({'a', '1'})
       p.parse("42").should be_a ParseError
