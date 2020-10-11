@@ -138,11 +138,14 @@ module Pars3k
       (digit * (1..)).map &.join
     end
 
-    # Parsed an integer as an `Int32`
-    def i_32
-      (digit * (1..)).map do |digits|
-        digits.reduce(0) { |accum, d| accum * 10 + t.to_i }
-      end
+    # Parses a fractional number as a String.
+    def decimal
+      (integer + (char '.') + integer).map &.join
+    end
+
+    # Parses a number as a String.
+    def number
+      decimal | integer
     end
   end
 end
