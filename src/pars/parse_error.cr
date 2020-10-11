@@ -7,12 +7,12 @@ module Pars
     def initialize(@message : String, @context : ParseContext)
     end
 
-    def to_s
-      "(#{@context.parsing}:#{@context.position}) #{@message}"
-    end
-
     def to_s(io : IO)
-      io << to_s
+      io << '('
+      io << context
+      io << ')'
+      io << ' '
+      io << message
     end
   end
 end

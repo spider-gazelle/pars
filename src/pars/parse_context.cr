@@ -43,5 +43,15 @@ module Pars
     def head : Char | UInt8
       input[pos]
     end
+
+    def to_s(io : IO)
+      before = ([0, pos - 5].max..(pos - 1))
+      after = ([pos + 1, input.size].min..[pos + 5, input.size].min)
+      io << input[before] if pos > 0
+      io << '['
+      io << head
+      io << ']'
+      io << input[after] unless exhausted?
+    end
   end
 end
