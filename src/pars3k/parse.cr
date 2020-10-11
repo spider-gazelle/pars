@@ -77,15 +77,14 @@ module Pars3k
 
     # Creates a `Parser(Char)` that looks at the current parse position and
     # expects the current character to be present in the string `s`.
-    def one_char_of(string : String) : Parser(Char)
-      raise ArgumentError.new "string is empty" if string.empty?
-      char_if &.in?(string)
+    def one_char_of(string_or_list : String | Enumerable(Char)) : Parser(Char)
+      char_if &.in?(string_or_list)
     end
 
     # Functions identically to `Parse.one_char_of`, but reverses the expected
     # input. If the current character is present in `s`, then the parse fails.
-    def no_char_of(string : String) : Parser(Char)
-      char_if &.in?(string).!
+    def no_char_of(string_or_list : String | Enumerable(Char)) : Parser(Char)
+      char_if &.in?(string_or_list).!
     end
 
     # Creates a `Parser(Array(T))` that will continue to parse with *parser*
