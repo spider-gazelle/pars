@@ -84,7 +84,7 @@ low_val = Parse.byte_if { |b| b <= 10 }
 ```
 
 
-### Amalgam parsers
+### Optional parsers
 
 ```crystal
 char_a = Parse.char 'a'
@@ -101,7 +101,7 @@ This example creates three parsers:
 - a `Parser(Char)` that expects a character of `'b'`, and
 - a `Parser(Char)` created using the `|` operator that will try the left parser first, then the right, and use the successful parser.
 
-The `|` operator allows you to create amalgam parsers by using OR logic.
+The `|` operator allows you to create branching parsers by using OR logic.
 It first tries the parser on the left, then the right.
 If both fail, it will throw the `ParseError` given by the rightmost parser.
 
