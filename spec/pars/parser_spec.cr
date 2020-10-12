@@ -154,8 +154,8 @@ describe Parser do
     end
     it "builds a union type from component parsers" do
       composite = p | (Parse.string "foo") | Parse.byte(0x0).map &->Box.new(UInt8)
-      composite.should be_a Parser(Char | String | Box(UInt8))
-      composite.parse("foo").should be_a (Char | String | Box(UInt8))
+      typeof(composite).should eq Parser(Char | String | Box(UInt8))
+      typeof(composite.parse("foo")).should eq (Char | String | Box(UInt8) | ParseError)
     end
   end
 
