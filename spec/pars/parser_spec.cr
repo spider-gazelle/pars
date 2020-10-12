@@ -204,7 +204,7 @@ describe Parser do
   describe "#&" do
     it "succeeds when both succeed" do
       p = a & Parse.letter
-      p.parse("a").should eq 'a'
+      p.parse("a").should eq({'a', 'a'})
     end
     it "returns a ParseError if either fail" do
       (a & b).parse("a").should be_a ParseError

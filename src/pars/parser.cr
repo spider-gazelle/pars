@@ -212,14 +212,19 @@ module Pars
     end
 
     # Given `A & B`, creates a parser that succeeds when both A and B succeed
-    # for the same input.
-    def &(other : Parser(B)) : Parser(B) forall B
-      Parser(B).new do |context|
+    # for the same input, returning the results as a Tuple.
+    def &(other : Parser(B)) : Parser({T, B}) forall B
+      Parser({T, B}).new do |context|
         result = run context
         if result.errored
-          ParseResult(B).error result.error!
+          ParseResult({T, B}).error result.error!
         else
-          other.run context
+          other_result = other.run context
+          if other_result.errored
+            ParseResult({T, B}).error other_result.error!
+          else
+            ParseResult({T, B}).new({result.value!, other_result.value!}, result.context)
+          end
         end
       end
     end
