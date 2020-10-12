@@ -44,14 +44,33 @@ module Pars
       input[pos]
     end
 
+    # Provide a human readable verison of the conntext parse context.
     def to_s(io : IO)
       before = ([0, pos - 5].max..(pos - 1))
-      after = ([pos + 1, input.size].min..[pos + 5, input.size].min)
-      io << input[before] if pos > 0
-      io << '['
-      io << head
-      io << ']'
-      io << input[after] unless exhausted?
+      after = ((pos + 1)..[pos + 5, input.size - 1].min)
+      io << "..." if before.begin > 0
+      if input.is_a? String
+        io << input[before] if pos > 0
+        io << '['
+        io << (exhausted? ? "<EOF>" : char)
+        io << ']'
+        io << input[after] if pos < input.size - 1
+      else
+        io << hex(input[before].as(Bytes)) if pos > 0
+        io << '['
+        io << (exhausted? ? "<EOF>" : hex(byte))
+        io << ']'
+        io << hex(input[after].as(Bytes)) if pos < input.size - 1
+      end
+      io << "..." unless after.end == input.size - 1
+    end
+
+    private def hex(byte : UInt8)
+      byte.to_s(16).rjust(2, '0')
+    end
+
+    private def hex(bytes : Bytes) : String
+      bytes.map(&->hex(UInt8)).join ' '
     end
   end
 end

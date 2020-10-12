@@ -8,11 +8,11 @@ module Pars
     end
 
     def to_s(io : IO)
+      io << message
+      io << ' '
       io << '('
       io << context
       io << ')'
-      io << ' '
-      io << message
     end
   end
 end
