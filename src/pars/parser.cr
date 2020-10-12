@@ -143,7 +143,7 @@ module Pars
 
     # Given `A | B`, creates a new parser that succeeds when A succeeds or B
     # succeeds. Checks A first, doesn't check B if A succeeds.
-    def |(other : Parser(T)) : Parser(T)
+    def |(other : self) : Parser(T)
       Parser(T).new do |context|
         result = run context
         if result.errored

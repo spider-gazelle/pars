@@ -152,6 +152,11 @@ describe Parser do
       result.should be_a ParseError
       result.as(ParseError).message.should eq "nope"
     end
+    it "builds a union type from component parsers" do
+      composite = p | (Parse.string "foo") | Parse.byte(0x0).map &->Box.new(UInt8)
+      composite.should be_a Parser(Char | String | Box(UInt8))
+      composite.parse("foo").should be_a (Char | String | Box(UInt8))
+    end
   end
 
   describe "#&" do
