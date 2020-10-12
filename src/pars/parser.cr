@@ -142,33 +142,28 @@ module Pars
     end
 
     # Given `A | B`, creates a new parser that succeeds when A succeeds or B
-    # succeeds. Checks A first, doesn't check B if A succeeds.
-    def |(other : self) : Parser(T)
-      Parser(T).new do |context|
-        result = run context
-        if result.errored
-          other.run context
-        else
-          result
-        end
-      end
-    end
-
-    # Given `A | B`, creates a new parser that succeeds when A succeeds or B
     # succeeds. Checks A first, doesn't check B if A succeeds. Ignores type
     # differences, gives union type.
     def |(other : Parser(B)) : Parser(T | B) forall B
       Parser(T | B).new do |context|
         result = run context
         if result.errored
-          new_result = other.run context
-          if new_result.errored
-            ParseResult(T | B).error new_result.error!
-          else
-            ParseResult(T | B).new new_result.value!, new_result.context
-          end
+          {% if Union(T, B) == B %}
+            other.run context
+          {% else %}
+            other_result = other.run context
+            if other_result.errored
+              ParseResult(T | B).error other_result.error!
+            else
+              ParseResult(T | B).new other_result.value!, other_result.context
+            end
+          {% end %}
         else
-          ParseResult(T | B).new result.value!, result.context
+          {% if Union(T, B) == T %}
+            result
+          {% else %}
+            ParseResult(T | B).new result.value!, result.context
+          {% end %}
         end
       end
     end

@@ -153,7 +153,7 @@ describe Parser do
       result.as(ParseError).message.should eq "nope"
     end
     it "builds a union type from component parsers" do
-      composite = p | (Parse.string "foo") | Parse.byte(0x0).map &->Box.new(UInt8)
+      composite = p | (Parse.string "foo") | Parse.byte(0x0).map(&->Box.new(UInt8)) | p
       typeof(composite).should eq Parser(Char | String | Box(UInt8))
       typeof(composite.parse("foo")).should eq (Char | String | Box(UInt8) | ParseError)
     end
