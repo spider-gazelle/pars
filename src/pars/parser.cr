@@ -93,13 +93,41 @@ module Pars
     # results as a Tuple.
     #
     # If multiple parsers are chained, the results are flattened.
+    def &+(other : Parser(B)) forall B
+      self.bind do |a|
+        other.bind do |b|
+          {% if T.name.starts_with?("Tuple(") && B.name.starts_with?("Tuple(") %}
+            Parser.const(a + b)
+          {% elsif T.name.starts_with? "Tuple(" %}
+            Parser.const(a + {b})
+          {% elsif B.name.starts_with? "Tuple(" %}
+            Parser.const({a} + b)
+          {% else %}
+            Parser.const({a, b})
+          {% end %}
+        end
+      end
+    end
+
+    # Sequences `self` with *other*, providing a new Parser that returns the
+    # results as an Array.
+    #
+    # This may be preferred in place of `Parser(T)#.&+` when building parsers
+    # that enumerate or reduce over a structure of unknown size, such as when
+    # working within an Iterator.
+    #
+    # If multiple parsers are chained, the results are flattened.
     def +(other : Parser(B)) forall B
       self.bind do |a|
         other.bind do |b|
-          {% if T.name.starts_with? "Tuple(" %}
-            Parser(typeof(a + {b})).const Tuple.new *a, b
+          {% if T.name.starts_with?("Array(") && B.name.starts_with?("Array(") %}
+            Parser.const a + b
+          {% elsif T.name.starts_with? "Array(" %}
+            Parser.const a + [b]
+          {% elsif B.name.starts_with? "Array(" %}
+            Parser.const [a] + b
           {% else %}
-            Parser({T, B}).const({a, b})
+            Parser.const [a, b]
           {% end %}
         end
       end

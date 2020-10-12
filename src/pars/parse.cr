@@ -165,7 +165,7 @@ module Pars
 
     def non_empty_list(item : Parser(A), delimiter : Parser(B)) : Parser(Array(A)) forall A, B
       singleton = item * 1
-      plural = ((item << delimiter) * (1..) + item).map { |(xs, x)| xs << x }
+      plural = ((item << delimiter) * (1..) &+ item).map { |(xs, x)| xs << x }
       plural | singleton
     end
 

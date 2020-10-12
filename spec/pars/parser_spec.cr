@@ -7,6 +7,7 @@ describe Parser do
   a = Parse.char 'a'
   b = Parse.char 'b'
   c = Parse.char 'c'
+  str = Parse.string "foo"
 
   describe ".const" do
     p = Parser.const 42
@@ -75,16 +76,57 @@ describe Parser do
     end
   end
 
-  describe "#+" do
-    it "sequences `self` with another parser" do
-      p = a + b
+  describe "#&+" do
+    it "sequences `self` with another parser as a Tuple" do
+      p = a &+ b
       p.parse("a").should be_a ParseError
       p.parse("ab").should eq({'a', 'b'})
       p.parse("abc").should eq({'a', 'b'})
     end
     it "flattens the results when chaining" do
-      p = a + b + c
+      p = a &+ b &+ c
       p.parse("abc").should eq({'a', 'b', 'c'})
+    end
+    it "preserve types as each parser position" do
+      p = a &+ Parse.const("foo")
+      typeof(p).should eq Parser({Char, String})
+    end
+    it "is associative" do
+      p1 = (a &+ b) &+ str
+      p2 = a &+ (b &+ str)
+      typeof(p1).should eq typeof(p2)
+    end
+    it "returns a ParseError if any fail" do
+      p = a &+ b &+ c
+      p.parse("zbc").should be_a ParseError
+      p.parse("azc").should be_a ParseError
+      p.parse("abz").should be_a ParseError
+    end
+  end
+
+  describe "#+" do
+    it "sequences `self` with another parser as an Array" do
+      p = a + b
+      p.parse("a").should be_a ParseError
+      p.parse("ab").should eq(['a', 'b'])
+      p.parse("abc").should eq(['a', 'b'])
+    end
+    it "flattens the results when chaining" do
+      p = a + b + c
+      p.parse("abc").should eq(['a', 'b', 'c'])
+    end
+    it "is associative" do
+      p1 = (a + b) + str
+      p2 = a + (b + str)
+      typeof(p1).should eq typeof(p2)
+    end
+    it "forms an array with elements of a union type" do
+      p = a + Parse.const("foo")
+      typeof(p).should eq Parser(Array(Char | String))
+    end
+    it "allows forming parsers of unbounded length" do
+      p = "foo".each_char.map(&->Parse.char(Char)).reduce(Parser.const [] of Char) { |a, b| a + b }
+      typeof(p).should eq Parser(Array(Char))
     end
     it "returns a ParseError if any fail" do
       p = a + b + c
@@ -153,7 +195,7 @@ describe Parser do
       result.as(ParseError).message.should eq "nope"
     end
     it "builds a union type from component parsers" do
-      composite = p | (Parse.string "foo") | Parse.byte(0x0).map(&->Box.new(UInt8)) | p
+      composite = p | str | Parse.byte(0x0).map(&->Box.new(UInt8)) | p
       typeof(composite).should eq Parser(Char | String | Box(UInt8))
       typeof(composite.parse("foo")).should eq (Char | String | Box(UInt8) | ParseError)
     end
@@ -184,7 +226,6 @@ describe Parser do
       (a ^ a).parse("a").should be_a ParseError
     end
     it "provides a union type as the result" do
-      str = Parse.string "foo"
       (a ^ str).parse("a").should be_a Char | String
     end
   end
