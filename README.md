@@ -123,7 +123,7 @@ As seen, alphabetical characters parse, but numerical characters do not, as they
 
 Prebuilt parsers exist for common character types: `Parse.lowercase`, `Parse.uppercase`, `Parse.letter`, `Parse.digit`, `Parse.alphanumeric`, `Parse.whitespace`.
 
-#### Repetitive parsers
+### Repetitive parsers
 
 To create a parser that repeats, use the `*` operator.
 This is available on any `Parser(T)`, and outputs a `Parser(Array(T))`.
