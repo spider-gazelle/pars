@@ -230,7 +230,6 @@ word = Parse.letter * (1..)
 
 puts word.parse "hello world" #=> ['h', 'e', 'l', 'l', 'o']
 puts word.parse "abc" #=> ['a', 'b', 'c']
-puts word.parse "123" #=> []
 ```
 
 A clear issue exists with the above example: it returns a list of the characters.
@@ -274,7 +273,6 @@ word = (Parse.letter * (1..)).map &.join
 
 puts word.parse "hello world" #=> hello
 puts word.parse "abc" #=> abc
-puts word.parse "" #=>
 ```
 
 This identical `word` parser is available as `Parse.word` (`Parser(String)`).
@@ -283,14 +281,15 @@ This identical `word` parser is available as `Parse.word` (`Parser(String)`).
 
 The `|` (OR) operator already discussed as accompanied by other logical operators.
 
-- `A & B` (AND) creates a new parser that ensure both A and B successfull parse for the same input and returns the results of B.
+- `A & B` (AND) creates a new parser that ensure both A and B successfull parse for the same input and returns the results as the Tuple `{A, B}`.
 - `A ^ B` (XOR) creates a new parser that succeeds with the result of A or B, but fails if both succeed.
 
 ### Sequencing parsers
 
 - `A >> B` creates a new parser that ensures both A and B parse sequentially, but results with the value of B.
 - `A << B` creates a new parser that ensures both A and B parse sequentially, but results with the value of A.
-- `A + B` creates a new parser that ensure both A and B parse sequentially, returning the results as a Tuple.
+- `A + B` creates a new parser that ensure both A and B parse sequentially, returning the results as an Array.
+- `A &+ B` creates a new parser that ensure both A and B parse sequentially, returning the results as a Tuple.
 
 ```crystal
 letter = Parse.letter
