@@ -12,6 +12,76 @@ This style of parser allows for creating interpreted programming languages, deco
 
 For a more in-depth introduction, see [Monadic Parser Combinators](https://www.cs.nott.ac.uk/~pszgmh/monparsing.pdf).
 
+## Example
+
+Lets start with a domain model.
+```crystal
+enum Greeting
+  Hello
+  Goodbye
+end
+
+alias Target = String
+
+record Expression, greeting : Greeting, target : Target
+```
+
+Now we can build some parsers.
+```crystal
+# Creates a parser that returns a single letter character.
+letter = Parse.char_if &.letter?
+
+# Parser for 1 or more letters.
+letters = letter * (1..)
+
+# We can join these into a new Parser that provides joins these letters as a String.
+word = letters.map &.join  # this is already available as `Parse.word` too
+
+# This can now build a parser for one of our domain objects.
+greeting = word.map &->Greeting.parse(String)
+
+# But we still have a little more to consume...
+comma = Parse.char ','
+space = Parse.char ' '
+sep = (comma + space) | space
+# ...and some more...
+target = word
+exclamation = Parse.char('!') * (0..1)
+
+# But now we can combine these into the full expression parser
+expression = ((greeting << sep) &+ target << exclamation).map do |(g, t)|
+  Expression.new g, t
+end
+
+typeof(expression) # => Parser(Expression)
+
+expression.parse "Hello, world!" # => Expression(@greeting=Hello, @target="world")
+
+expression.parse "Hello human" # => Expression(@greeting=Hello, @target="human")
+
+expression.parse "Well then..." # => ParseError: unknown enum Greeting value: Well
+```
+
+Importantly though this is only the start. We can continue to build complexity.
+```crystal
+other_expression = Parse.string "Well then..."
+new_parser = expression | other_expression
+```
+
+And create results that use crystal's beautiful type system.
+```crystal
+result = new_parser.parse("Well then...")
+case result
+in Expression
+  # ...
+in String
+  # ...
+in ParseError
+  # ...
+end
+```
+
+---
 
 ## Usage
 
