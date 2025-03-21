@@ -1,5 +1,5 @@
 name: pars
-version: 1.1.0
+version: 1.2.0
 
 authors:
   - voximity <vox@voximity.net>
@@ -7,7 +7,5 @@ authors:
 
 description: |
   Monadic parser combinator library
-
-crystal: 0.34.0
 
 license: MIT

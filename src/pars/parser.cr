@@ -2,7 +2,7 @@ require "./parse_result"
 require "./parse_context"
 
 module Pars
-  class Parser(T)
+  struct Parser(T)
     # Creates a `Parser` that always succeeds with *value*.
     def self.const(value : T)
       new do |context|
